@@ -1,0 +1,46 @@
+name: Pipeline di Benvenuto e Verifica Codice
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      messaggio_personalizzato:
+        description: 'Messaggio opzionale da stampare nei log'
+        required: false
+        default: 'Automazione avviata manualmente.'
+
+permissions:
+  contents: read
+
+jobs:
+  saluto-e-diagnostica:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Scaricamento del codice dal repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Configurazione dell'ambiente Node.js
+        uses: actions/setup-node@60ed15dd54556730861e411ce6b37ef1d2446a44 # v4.0.2
+        with:
+          node-version: '20'
+
+      - name: Stampa del messaggio e contesto di esecuzione
+        run: |
+          echo "Avvio della pipeline completato con successo!"
+          echo "Autore del commit: ${{ github.actor }}"
+          echo "Repository sorgente: ${{ github.repository }}"
+          echo "Riferimento Git: ${{ github.ref }}"
+
+      - name: Gestione dell'input manuale opzionale
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Parametro ricevuto: ${{ github.event.inputs.messaggio_personalizzato }}"
+
+      - name: Verifica della versione di Node.js installata
+        run: node --version
